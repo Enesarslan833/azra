@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Azra'ya</title>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(to bottom, #080554, #000000);
+      color: white;
+      overflow-x: hidden;
+      min-height: 100vh;
+      position: relative;
+    }
+
+    #login {
+      height: 100vh;
+      background:
+        linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)),
+        url('https://i.ibb.co/yBQ0GFM0/Whats-App-G-rsel-2025-06-21-saat-14-37-47-f76885ef.jpg') center center / cover no-repeat;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      position: relative;
+    }
+
+    #login p {
+      color: white;
+      font-style: italic;
+      margin-bottom: 10px;
+      font-size: 1rem;
+      user-select: none;
+    }
+
+    #login input, #login button {
+      background-color: rgba(255, 255, 255, 0.8);
+      color: #000;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 5px;
+      font-size: 16px;
+      width: 200px;
+      text-align: center;
+      border: none;
+      box-shadow: 0 0 10px rgba(255,255,255,0.7);
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    #login input::placeholder {
+      color: #666;
+    }
+    #login input:focus, #login button:hover {
+      background-color: rgba(255, 255, 255, 1);
+      box-shadow: 0 0 15px rgba(255,255,255,1);
+      outline: none;
+      color: #000;
+    }
+
+    #content {
+      display: none;
+      padding: 2rem;
+      position: relative;
+      z-index: 2;
+      overflow: visible;
+    }
+
+    h1, p {
+      position: relative;
+      z-index: 1;
+    }
+
+    .controls {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      z-index: 11;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0, 54, 12, 0.8);
+      padding: 8px 12px;
+      border-radius: 8px;
+    }
+
+    .controls button {
+      background-color: #02360c;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      cursor: pointer;
+      border-radius: 5px;
+      font-size: 16px;
+      font-weight: bold;
+      transition: background-color 0.3s ease;
+    }
+    .controls button:hover {
+      background-color: #036513;
+    }
+
+    #progress, #volume {
+      cursor: pointer;
+      border-radius: 4px;
+      background: #444;
+      -webkit-appearance: none;
+    }
+
+    #progress {
+      width: 120px;
+      height: 6px;
+    }
+    #volume {
+      width: 80px;
+      height: 6px;
+    }
+
+    #progress::-webkit-slider-thumb,
+    #volume::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #fff;
+      border: 2px solid #02360c;
+      transition: background-color 0.3s ease;
+    }
+
+    #progress:hover::-webkit-slider-thumb,
+    #volume:hover::-webkit-slider-thumb {
+      background-color: #02360c;
+    }
+
+    .photo-container {
+      position: absolute;
+      width: 140px;
+      height: 140px;
+      perspective: 1000px;
+      cursor: pointer;
+      z-index: 5;
+      transition: z-index 0.3s ease;
+      border-radius: 10px;
+    }
+
+    .photo-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transform-style: preserve-3d;
+      transition: transform 0.8s;
+      border: 10px solid white;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+      border-radius: 10px;
+      background: white;
+    }
+
+    .photo-container.flipped .photo-inner {
+      transform: rotateY(180deg);
+    }
+
+    .front, .back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 10px;
+    }
+
+    .front {
+      object-fit: cover;
+      background: transparent;
+    }
+
+    .back {
+      background-color: white;
+      transform: rotateY(180deg);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .photo-container.expanded {
+      position: fixed !important;
+      top: 50% !important;
+      left: 50% !important;
+      width: 140px !important;
+      height: 140px !important;
+      transform: translate(-50%, -50%) scale(1.8) !important;
+      z-index: 1101;
+      cursor: default;
+    }
+
+    #overlay {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      background: white;
+      border-radius: 20px;
+      opacity: 0;
+      transform: translate(-50%, -50%);
+      transition: width 0.6s ease, height 0.6s ease, opacity 0.6s ease;
+      z-index: 1100;
+    }
+
+    #overlay.active {
+      width: 50vw;
+      height: 50vh;
+      opacity: 1;
+    }
+
+    #overlayNote {
+      font-family: 'Dancing Script', cursive;
+      font-size: 1.8rem;
+      text-align: center;
+      color: black;
+      width: 45%;
+      max-width: 90%;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 1102;
+      line-height: 1.6;
+    }
+
+    .petal {
+      position: absolute;
+      top: -50px;
+      width: 30px;
+      height: 30px;
+      background-image: url('https://w7.pngwing.com/pngs/961/611/png-transparent-rose-petal-rose-petal-red-color-flower-desktop-wallpaper.png');
+      background-size: cover;
+      opacity: 0.8;
+      animation: fall 2s linear forwards;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    @keyframes fall {
+      to {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="login">
+    <h2>Şifre ile giriş</h2>
+    <p>İpucu: Aşkımızın resmileştiği tarih (gg.aa.yy)</p>
+    <input type="password" id="passwordInput" placeholder="Şifreyi gir bebeğim" />
+    <button id="loginButton">Tamam</button>
+  </div>
+
+  <div id="content">
+    <h1>Azra'ya</h1>
+    <p>Seninle geçirdiğimiz anılar, şiirler ve sevdiğimiz müzikler burada canımın içi...</p>
+
+    <div class="controls">
+      <button onclick="prevSong()">⏮️</button>
+      <button onclick="toggleMusic()">⏯</button>
+      <button onclick="nextSong()">⏭️</button>
+      <input type="range" id="progress" value="0" min="0" max="100" step="1" />
+      <input type="range" id="volume" min="0" max="1" step="0.01" value="0.5" />
+    </div>
+
+    <audio id="player"></audio>
+    <div id="photos"></div>
+  </div>
+
+  <div id="overlay">
+    <div id="overlayNote"></div>
+  </div>
+
+  <script>
+    const password = "220724"; // Yeni şifre
+    const songs = [
+      "muzikler/sarki1.mp3",
+      "muzikler/sarki2.mp3",
+      "muzikler/sarki3.mp3",
+      "muzikler/sarki4.mp3",
+      "muzikler/sarki5.mp3",
+      "muzikler/sarki6.mp3",
+      "muzikler/sarki7.mp3"
+    ];
+    let current = 0;
+    const player = document.getElementById("player");
+    const progress = document.getElementById("progress");
+    const volume = document.getElementById("volume");
+
+    function playSong(index) {
+      current = (index + songs.length) % songs.length;
+      player.src = songs[current];
+      player.play();
+    }
+
+    function nextSong() { playSong(current + 1); }
+    function prevSong() { playSong(current - 1); }
+    function toggleMusic() { 
+      if (player.paused) {
+        player.play();
+      } else {
+        player.pause();
+      }
+    }
+
+    function checkPassword() {
+      const input = document.getElementById("passwordInput").value;
+      if (input === password) {
+        document.getElementById("login").style.display = "none";
+        document.getElementById("content").style.display = "block";
+        playSong(current);
+      } else {
+        alert("🤨🤨 şaka mı ?");
+      }
+    }
+
+    document.getElementById("loginButton").addEventListener("click", checkPassword);
+    document.getElementById("passwordInput").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") checkPassword();
+    });
+
+    player.addEventListener('timeupdate', () => {
+      if (player.duration) progress.value = (player.currentTime / player.duration) * 100;
+    });
+
+    progress.addEventListener('input', () => {
+      if (player.duration) player.currentTime = (progress.value / 100) * player.duration;
+    });
+
+    volume.addEventListener('input', () => { player.volume = volume.value; });
+    player.volume = volume.value;
+    player.addEventListener('ended', () => { nextSong(); });
+
+    const overlay = document.getElementById('overlay');
+    const overlayNote = document.getElementById('overlayNote');
+    const photoContainer = document.getElementById('photos');
+
+    const photoNotes = [
+      "Bugünü asla unutamam. Çok güzeldin ve sahilde denizin, çimenin ve senin tadını çıkarmayı çok sevmiştim.",
+      "Çok istediğimiz gibi dans edemedik ama en azından ilk çift kombini giydiğimiz resmi nişanımızdı diyebilirim. Yine çok güzeldin 🥺",
+      "Gözlerimi kesin çizdirmem lazım. Güneş gözlüğü ile birlikte çok güzel oluyoruz.",
+      "Rahmetli T-Roc... Güzel anılarımız oldu. İlk yıkadığımız araba mesela.",
+      "Prensesimi istediği her zaman sırtımda taşımaya hazırım 💪💪💪",
+      "Hayatımda çektiğim en iyi profil fotoğrafı olduğu için koydum.",
+      "O çok sevdiğin Guess üstünü ben de sana çok yakıştırıyorum. Ama o güzel değil, sen mükemmelsin.",
+      "Bu gün hakkında ne denir bilmiyorum… Çok güzeldi.",
+      "Buz gibi havada ısıtıcıdan çok senin ellerini tutmak içimi ısıtmıştı.",
+      "İlk zamanlarımızdan sayılır. Aslında arkada köprü var ama asıl manzara biziz.",
+      "Aşığım güzelliğine, getir ellerini… Zaman geçtikçe daha da zarifleşiyor gözlerin. Rüya gibisin ömrüme canım sevgilim. Aşkının çilesini çekmek için canımı veririm.",
+      "ASOJHFAIUSDFASDIPOFJNASDIOASPOFINJMU9IASOF",
+      "Umarım maç anılarımıza daha birçok fotoğraf ekleriz. Seninle maça gitmeyi çok seviyorum.",
+      "Annemle tanıştığın gün… Bizim parkta… Bugünün yeri çok ayrı kafamda.",
+      "Yalayıp yutuyorum seni burada 👅👅👅👅👅👅",
+      "Hem teyzemle tanışman hem de pizzacıya ilk gelişin. Tatlısın yine ya, offff.",
+      "Titanic yapıyoruz… Şimdi olsa sözümü dinlemez, utanırsın yapmaya ama güzeldi. BJK - Üsküdar mekanımızda.",
+      "🐵🐵🐵🐵🐵🐵🐵🐵🐵🐵🐵🐵🐵🐵"
+    ];
+
+    const photoList = Array.from({ length: 18 }, (_, i) => `fotolar/foto${i + 1}.jpg`);
+    const positions = [
+      [10, 5], [15, 20], [20, 35], [25, 50], [30, 65], [35, 80],
+      [40, 10], [45, 25], [50, 40], [55, 55], [60, 70], [65, 15],
+      [70, 30], [75, 45], [80, 60], [85, 75], [90, 35], [95, 50]
+    ];
+
+    photoList.forEach((src, index) => {
+      const div = document.createElement('div');
+      div.className = 'photo-container';
+      div.style.top = positions[index][0] + 'vh';
+      div.style.left = positions[index][1] + 'vw';
+      div.style.transform = `rotate(${(Math.random() * 20 - 10).toFixed(1)}deg)`;
+
+      const inner = document.createElement('div');
+      inner.className = 'photo-inner';
+
+      const front = document.createElement('img');
+      front.src = src;
+      front.className = 'front';
+      inner.appendChild(front);
+
+      const back = document.createElement('div');
+      back.className = 'back';
+      inner.appendChild(back);
+
+      div.appendChild(inner);
+      photoContainer.appendChild(div);
+
+      div.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const expanded = div.classList.contains('expanded');
+        document.querySelectorAll('.photo-container').forEach(p => {
+          p.classList.remove('expanded');
+          p.style.zIndex = 5;
+        });
+        if (!expanded) {
+          overlay.classList.add('active');
+          overlayNote.innerText = photoNotes[index];
+          div.classList.add('expanded');
+          div.style.zIndex = 1101;
+          dropPetals();
+          document.body.style.overflow = 'hidden'; // Scroll'u engelle
+        } else {
+          overlay.classList.remove('active');
+          overlayNote.innerText = "";
+          document.body.style.overflow = '';
+        }
+      });
+    });
+
+    document.body.addEventListener('click', (e) => {
+      if (!e.target.closest('.photo-container.expanded')) {
+        document.querySelectorAll('.photo-container.expanded').forEach(p => {
+          p.classList.remove('expanded');
+          p.style.zIndex = 5;
+        });
+        overlay.classList.remove('active');
+        overlayNote.innerText = "";
+        document.body.style.overflow = '';
+      }
+    });
+
+    function dropPetals() {
+      const count = 30;
+      for (let i = 0; i < count; i++) {
+        const petal = document.createElement('div');
+        petal.classList.add('petal');
+        petal.style.left = Math.random() * window.innerWidth + 'px';
+        petal.style.animationDelay = Math.random() * 1 + 's';
+        document.body.appendChild(petal);
+        setTimeout(() => petal.remove(), 3000);
+      }
+    }
+  </script>
+
+</body>
+</html>
